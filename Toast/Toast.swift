@@ -803,4 +803,50 @@ private extension UIView {
     
 }
 
+/// Kind of notification
+public enum ToastNotificationType: Int {
+    case info, success, warning, error
+}
+
+/// Any type can display toasts
+public protocol ToastDisplayable: AnyObject {
+
+    func displayToast(_ text: String, type: ToastNotificationType, position: ToastPosition)
+
+}
+
+public extension ToastDisplayable {
+
+    func displayToast(_ text: String, type: ToastNotificationType = .info, position: ToastPosition = .bottom) {
+        displayToast(text, type: type, position: position)
+    }
+
+}
+
+extension UIView: ToastDisplayable {
+
+    public func displayToast(_ text: String, type: ToastNotificationType, position: ToastPosition) {
+        makeToast(text, position: position)
+        switch type {
+        case .info:
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        case .warning:
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        case .success:
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        case .error:
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        }
+    }
+
+}
+
+public extension ToastDisplayable where Self: UIViewController {
+
+    func displayToast(_ text: String, type: ToastNotificationType, position: ToastPosition) {
+        view.displayToast(text, type: type, position: position)
+    }
+
+}
+
 #endif
